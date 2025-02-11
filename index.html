@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>รายการธุรกรรม</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f8fc;
+        padding: 20px;
+      }
+      .transactions-container {
+        max-width: 400px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        overflow: hidden;
+      }
+      .transaction {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: slideIn 0.5s ease-out forwards;
+      }
+      .transaction-logo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-right: 15px;
+        object-fit: contain;
+      }
+      .transaction-details {
+        flex-grow: 1;
+      }
+      .transaction-title {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+      }
+      .transaction-time {
+        font-size: 14px;
+        color: #888;
+      }
+      .transaction-amount {
+        font-size: 16px;
+        font-weight: bold;
+        color: #4caf50;
+        white-space: nowrap;
+        display: inline-block;
+      }
+
+      /* อนิเมชัน */
+      @keyframes slideIn {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="transactions-container" id="transactions"></div>
+
+    <script>
+      const banks = [
+        {
+          code: "bbl",
+          name_th: "ธนาคารกรุงเทพ",
+          color: "#1e4598",
+          logo: "https://today-obs.line-scdn.net/0hfjwVCboyOUVKLygTxMtGEnJ5NTR5SSNMaBlyJWkpNyBkA30VI0tqJjouYWlvSy4bakl-IG99YXFnGHpHfw/w1200",
+        },
+
+        {
+          code: "ktb",
+          name_th: "ธนาคารกรุงไทย",
+          color: "#1ba5e1",
+          logo: "https://upload.wikimedia.org/wikipedia/en/f/f0/Krung_Thai_Bank_logo.svg",
+        },
+        {
+          code: "truewallet",
+          name_th: "ทรูมันนี่วอลเล็ต",
+          color: "#F58321",
+          logo: "https://www.thebangkokinsight.com/wp-content/uploads/2018/04/True-Money-Wallet-Logo.jpg",
+        },
+        {
+          code: "kbank",
+          name_th: "ธนาคารกสิกรไทย",
+          color: "#138f2d",
+          logo: "https://www.dpa.or.th/storage/uploads/bank/dpa_bank_kbank@2x.png",
+        },
+
+        {
+          code: "scb",
+          name_th: "ธนาคารไทยพาณิชย์",
+          color: "#4e2e7f",
+          logo: "https://www.dpa.or.th/storage/uploads/bank/dpa_bank_sb@2x.png",
+        },
+
+        {
+          code: "bay",
+          name_th: "ธนาคารกรุงศรีอยุธยา",
+          color: "#fec43b",
+          logo: "https://www.jobthaiweb.com/company/picture/iaor_logo.gif?d=1739217203.9687",
+        },
+
+        {
+          code: "ttb",
+          name_th: "ทีเอ็มบีธนชาต",
+          color: "#ecf0f1",
+          logo: "https://www.bot.or.th/content/dam/bot/pages/involve-party/fi-logo/011.gif",
+        },
+
+        {
+          code: "gsb",
+          name_th: "ธนาคารออมสิน",
+          color: "#eb198d",
+          logo: "https://www.bot.or.th/content/dam/bot/pages/involve-party/fi-logo/030.gif",
+        },
+
+        {
+          code: "cimb",
+          name_th: "ธนาคารซีไอเอ็มบีไทย",
+          color: "#7e2f36",
+          logo: "https://www.dpa.or.th/storage/uploads/bank/dpa_bank_cimbthai@2x.png",
+        },
+
+        {
+          code: "icbc",
+          name_th: "ธนาคารไอซีบีซี (ไทย)",
+          color: "#c50f1c",
+          logo: "https://www.bot.or.th/content/dam/bot/pages/involve-party/fi-logo/070.gif",
+        },
+      ];
+
+      const transactions = [
+      ];
+
+      const container = document.getElementById("transactions");
+
+      function addTransaction(trx) {
+        const bankInfo = banks.find((b) => b.code === trx.bank);
+        const html = `
+        <div class="transaction">
+          <img src="${bankInfo.logo}" alt="${
+          bankInfo.name_th
+        }" class="transaction-logo">
+          <div class="transaction-details">
+            <div class="transaction-title">${bankInfo.name_th}</div>
+            <div class="transaction-time">เวลา: ${trx.time}</div>
+          </div>
+          <div class="transaction-amount">+${formatAmount(trx.amount)}</div>
+        </div>
+      `;
+
+        container.insertAdjacentHTML("afterbegin", html);
+
+        const transactionItems = container.querySelectorAll(".transaction");
+        if (transactionItems.length > 5) {
+          const lastTransaction = transactionItems[transactionItems.length - 1];
+          lastTransaction.style.animation = "fadeOut 0.5s ease-out forwards";
+          setTimeout(() => lastTransaction.remove(), 500);
+        }
+      }
+
+      transactions.forEach(addTransaction);
+
+      function addRandomTransaction() {
+        const bankCodes = [
+          "ktb",
+          "truewallet",
+          "kbank",
+          "truewallet",
+          "scb",
+          "truewallet",
+          "bay",
+          "cimb",
+          "truewallet",
+          "ttb",
+          "gsb",
+          "truewallet",
+        ];
+        const randomBank =
+          bankCodes[Math.floor(Math.random() * bankCodes.length)];
+        const randomAmount = (Math.random() * 2000 + 100).toFixed(2);
+        const now = new Date();
+        const newTransaction = {
+          bank: randomBank,
+          time: now.toLocaleTimeString("th-TH", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          amount: parseFloat(randomAmount),
+        };
+
+        addTransaction(newTransaction);
+
+        // ตั้งเวลาสุ่มเพิ่มธุรกรรมใหม่
+        setTimeout(addRandomTransaction, Math.random() * (5000 - 3000) + 3000);
+      }
+
+      function formatAmount(amount) {
+        return new Intl.NumberFormat("th-TH", {
+          style: "currency",
+          currency: "THB",
+          minimumFractionDigits: 2,
+        }).format(amount);
+      }
+
+      addRandomTransaction();
+    </script>
+  </body>
+</html>
